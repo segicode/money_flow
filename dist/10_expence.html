@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+    <body>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>少しお待ちください...</p>
+        </div>
+
+        
+        <div id="content" style="display:none";>
+            <button onclick="previous_month()">先月</button>
+            <p id="select_date"></p>
+            <button onclick="next_month()">翌月</button>
+            <button onclick="import_csv()">csvデータのダウンロード</button>
+            <div>
+                合計支出
+            </div>
+            <div id="total_expence"></div>
+            <div class="dashboard"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>店舗</th>
+                        <th>ジャンル</th>
+                        <th>金額</th>
+                    </tr>
+                </thead>
+                <tbody class="expence_tbody" id="tbody"></tbody>
+            </table>
+        </div>
+
+        <template id="dashboard_entry">
+            <div class="genre"></div>
+            <div class="money"></div>
+        </template>
+
+        <template id="expence_tr">
+            <tr>
+                <td class="date"></td>
+                <td class="store"></td>
+                <td class="genre"></td>
+                <td class="cost"></td>
+            </tr>
+        </template>
+
+        <script>
+            const app = {
+                all_data: [],
+                genre_data: {},
+                current_year: new Date().getFullYear(),
+                current_month: new Date().getMonth()+1
+            };
+
+            document.addEventListener("DOMContentLoaded", () => {
+                console.log(1);
+                google.script.run
+                    .withSuccessHandler(({data, genre_obj}) =>{
+                        app.all_data = data;
+                        app.genre_data = genre_obj;
+                        console.log(genre_obj);
+                        load_data();
+                    })
+                    .get_expence_data();
+                
+            });
+
+
+            function load_data(){
+                document.getElementById("select_date").textContent = app.current_year +"年  "+ app.current_month +"月";
+
+                const month_data = get_month_data();
+                create_totalexpence(month_data);
+                create_dashboard(month_data);
+                create_table(month_data);
+
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("content").style.display = "block";
+            }
+
+            function get_month_data(){
+                return app.all_data.filter(row =>{
+                    const date = new Date(row[0]);
+                    return date.getFullYear() === app.current_year &&
+                            date.getMonth()+1 === app.current_month;
+                });
+            }
+
+            function create_totalexpence(data) {
+                let sum = 0;
+                data.forEach(row =>{
+                    sum += row[2];
+                });
+                const total_expence = document.getElementById("total_expence");
+
+                total_expence.innerHTML = "";
+                total_expence.textContent = sum;
+            }
+
+            function create_dashboard(data) {
+                const genre_totals = [];
+                const genre_obj = app.genre_data;
+
+                data.forEach(([day, store, money]) => {
+                    const genre = genre_obj[store] || "???";
+                    genre_totals[genre] = (genre_totals[genre] || 0)+ money;
+                })
+
+                const sort_genre = sort_string(Object.entries(genre_totals), 0);
+
+                const dashboard = document.querySelector(".dashboard");
+                const template = document.getElementById("dashboard_entry");
+
+                dashboard.innerHTML = "";
+
+                sort_genre.forEach(([genre, money]) => {
+                    const clone = template.content.cloneNode(true);
+
+                    clone.querySelector(".genre").textContent = genre;
+                    clone.querySelector(".money").textContent = money;
+
+                    dashboard.appendChild(clone);
+                })
+            }
+
+            function create_table(data) {
+
+                const tbody = document.querySelector(".expence_tbody");
+                const template = document.getElementById("expence_tr");
+                
+                const genre_obj = app.genre_data;
+
+                tbody.innerHTML = "";
+
+                data.forEach(row => {
+
+                    const clone = template.content.cloneNode(true);
+
+                    clone.querySelector(".date").textContent = row[0];
+                    clone.querySelector(".store").textContent = row[1];
+                    clone.querySelector(".genre").textContent = genre_obj[row[1]] || "???";
+                    clone.querySelector(".cost").textContent = row[2];
+
+                    tbody.appendChild(clone);
+
+                });
+
+            }
+
+            
+            function next_month(){
+                document.getElementById("loading").style.display = "block";
+                document.getElementById("content").style.display = "none";
+
+                if(app.current_month < 12){
+                    app.current_month++;
+                } else {
+                    app.current_month = 1;
+                    app.current_year++;
+                }
+
+                load_data();
+            }
+
+            function previous_month(){
+                document.getElementById("loading").style.display = "block";
+                document.getElementById("content").style.display = "none";
+
+                if(app.current_month > 1){
+                    app.current_month--;
+                } else {
+                    app.current_month = 12;
+                    app.current_year--;
+                }
+
+                load_data();
+            }
+
+
+            function import_csv(){
+                document.getElementById("loading").style.display = "block";
+                document.getElementById("content").style.display = "none";
+
+                google.script.run
+                    .withSuccessHandler(insert_count => {
+
+                        google.script.run
+                            .withSuccessHandler(({data, genre_data}) =>{
+
+                                if(insert_count > 0){
+                                    alert(insert_count+"件の取引を追加しました");
+                                } else {
+                                    alert("新しい取引はありませんでした");
+                                };
+
+                                app.all_data = data;
+                                app.genre_data = genre_data;
+                                load_data();
+                                document.getElementById("loading").style.display = "none";
+                                document.getElementById("content").style.display = "block";
+                            })
+                            .get_expence_data();
+                    
+                    })
+                    .import_csv();                    
+            };
+
+            
+            document.getElementById("tbody").addEventListener("click", (e) =>{
+                const tr = e.target.closest("tr");
+                const store = tr.cells[1].textContent;
+                const genre = tr.cells[2].textContent;
+
+                const new_genre = prompt(store+"のジャンルを決めてください");
+                google.script.run.add_genre_value(new_genre, store);
+            })
+
+
+            function sort_string(array, number) {
+
+                const sort = array.sort((a, b) => {
+                    const typeA = gettype(a[number]);
+                    const typeB = gettype(b[number]);
+
+                    // 種類が違えば優先順位で並べる
+                    if (typeA !== typeB) {
+                    return typeA - typeB;
+                    }
+
+                    // 同じ種類なら五十音順などで並べる
+                    return a[number].localeCompare(b[number], "ja");
+                });
+
+                return sort;
+
+                function gettype(str){
+                    const ch = str;
+
+                    if (/^[ぁ-ゖ]/.test(ch)) return 0;      // ひらがな
+                    if (/^[ァ-ヺ]/.test(ch)) return 1;      // カタカナ
+                    if (/^[一-龯々]/.test(ch)) return 2;    // 漢字
+                    if (/^[A-Za-z0-9]/.test(ch)) return 3;  // 英字・数字
+                    return 4;                              // 記号
+                }
+            }
+        </script>
+    </body>

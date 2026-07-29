@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "none",
+    "strict": true,
+    "types": ["google-apps-script"],
+    "outDir": "dist",
+    "rootDir": "src/code"
+  },
+  "include": ["src/code/**/*.ts"]
+}
