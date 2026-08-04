@@ -1,0 +1,171 @@
+<script>
+    const STATE_LIST = Object.freeze({
+        FLOW: "money_flow",
+        WORK: "work_manager",
+        PAY : "pay_tracker",
+        DATA: "data_management"
+    });
+
+    class App{
+        constructor(data){
+            const today = new Date();
+
+            this.state = STATE_LIST.FLOW;
+            this.year   = today.getFullYear();
+            this.month  = today.getMonth()+1;
+
+            this.pay_data = null;
+
+            //this.pay_data = new pay_data(data.pay_data);
+        }
+
+
+        change_state(state_name){
+            if(!Object.values(STATE_LIST).includes(state_name)){
+                throw new Error("STATE_LISTに該当しません"+state_name);
+            }
+            this.state = state_name;
+            state_render();
+            main_render(this.state);
+        }
+
+        next_month(){
+            if(this.month < 12){
+                    this.month++;
+                } else {
+                    this.month = 1;
+                    this.year++;
+                }
+            date_render();
+            main_render(this.state);
+        }
+
+        previous_month(){
+            if(this.month > 1){
+                    this.month--;
+                } else {
+                    this.month = 12;
+                    this.year--;
+                }
+            date_render();
+            main_render(this.state);
+        }
+
+    }
+
+    const app = new App();
+    google.script.run
+        .withSuccessHandler(data =>{
+            app.pay_data = new pay_data(data.pay_data);
+            date_render();
+            state_render();
+            console.log(app);
+        })
+        .get_all_data();
+
+
+    function main_render(state){
+        switch(state){
+            case "money_flow"     : money_flow_render(); break;
+            case "work_manager"   : work_manager_render(); break;
+            case "pay_tracker"    : pay_tracker_render(); break;
+            case "data_management": data_management_render(); break;
+        };
+    }
+
+    function dashboard_position() {
+        const dashboard = document.getElementById(`dashboard_${app.state}`);
+        if (!dashboard) return;
+
+        const row = dashboard.closest(".dashboard_row");
+        const col = dashboard.closest(".dashboard_col");
+
+        const isTall = dashboard.offsetHeight > window.innerHeight;
+
+        row.classList.toggle("align-items-md-end", isTall);
+        row.classList.toggle("align-items-md-start", !isTall);
+        col.classList.toggle("sticky-md-bottom", isTall);
+        col.classList.toggle("sticky-md-top", !isTall);
+    }
+    window.addEventListener("resize", dashboard_position);
+
+
+    function money_flow_render(){dashboard_position()}
+    function work_manager_render(){dashboard_position()}
+    function data_management_render(){}
+
+/*let currentPage = "home";
+
+let currentDate = new Date();
+
+
+const pageNames = {
+  home:"家計簿",
+  expense:"支出",
+  income:"収入",
+  data:"管理"
+};
+
+
+
+// ページ切替
+function navigateTo(page){
+
+  currentPage = page;
+
+
+  // タイトル変更
+
+
+  // footer選択状態変更
+
+
+  
+
+
+
+
+}
+
+
+
+// 月変更
+function changeMonth(diff){
+
+  currentDate.setMonth(
+    currentDate.getMonth()+diff
+  );
+
+
+  updateMonth();
+
+}
+
+
+
+// 月表示更新
+function updateMonth(){
+
+  const y=currentDate.getFullYear();
+
+  const m=currentDate.getMonth()+1;
+
+
+
+
+  // 未来月へ進ませない
+  const now=new Date();
+
+
+  document
+  .getElementById("nextMonthBtn")
+  .disabled =
+  currentDate.getFullYear()===now.getFullYear()
+  &&
+  currentDate.getMonth()===now.getMonth();
+
+}
+
+
+updateMonth();*/
+</script>

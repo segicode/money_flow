@@ -1,11 +1,23 @@
 "use strict";
 function doGet() {
     return HtmlService
-        .createTemplateFromFile("10_expence")
+        .createTemplateFromFile("00_index")
         .evaluate()
-        .setTitle("pay_tracker : 支出データ")
+        .setTitle("家計簿アプリ : money_flow")
         .addMetaTag("viewport", "width=device-width, initial-scale=1");
 }
+function get_all_data() {
+    const pay_data = get_pay_data();
+    return {
+        pay_data: pay_data,
+        work_data: null
+    };
+}
+function include(filename) {
+    const template = HtmlService.createTemplateFromFile(filename);
+    return template.evaluate().getContent();
+}
+;
 /*function doGet(e: { parameter: { page: any; }; }) {
     type Page = keyof typeof routes;
     const page = ((e && e.parameter && e.parameter.page) || "index") as Page;
@@ -43,11 +55,4 @@ function render(page: string) {
         .evaluate()
         .setTitle("：index")
         .addMetaTag("viewport", "width=device-width, initial-scale=1");
-};
-
-function include(filename: string, data?: any | null) {
-    const template = HtmlService.createTemplateFromFile(filename);
-    template.data = data ?? null;
-
-    return template.evaluate().getContent();
-};*/ 
+};*/

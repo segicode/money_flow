@@ -1,0 +1,38 @@
+<div  class="d-flex align-items-center justify-content-between px-3 py-2">
+    <div class="d-flex align-items-center">
+
+        <span class="pc-flex fw-bold text-primary">
+            kakeibo
+        </span>
+
+        <span id="pagetitle" class="mobile-flex fw-semibold text-primary">
+        </span>
+
+    </div>
+
+
+    <div class="d-flex align-items-center gap-2">
+
+        <button id="previousmonth_btn" class="btn btn-light btn-sm" onclick="app.previous_month()">
+            <span class="fs-6"><</span>
+        </button>
+
+        <span id="monthlabel" class="fw-medium px-2">
+        2026年 7月
+        </span>
+
+        <button id="nextmonth_btn" class="btn btn-light btn-sm" onclick="app.next_month()">
+            <span class="fs-6">></span>
+        </button>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    function date_render(){
+        document.getElementById("monthlabel").textContent =`${app.year}年${app.month}月`;
+    }
+</script>

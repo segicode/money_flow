@@ -1,0 +1,61 @@
+<button 
+    class="btn flex-fill nav-btn active"
+    data-state="money_flow"
+    onclick="app.change_state(STATE_LIST.FLOW)">
+
+    📊
+    <small>家計簿</small>
+
+</button>
+
+<button 
+    class="btn flex-fill nav-btn"
+    data-state="work_manager"
+    onclick="app.change_state(STATE_LIST.WORK)">
+
+    📈
+    <small>収入</small>
+
+</button>
+
+<button 
+    class="btn flex-fill nav-btn"
+    data-state="pay_tracker"
+    onclick="app.change_state(STATE_LIST.PAY)">
+
+    📉
+    <small>支出</small>
+
+</button>
+
+<button 
+    class="btn flex-fill nav-btn"
+    data-state="data_management"
+    onclick="app.change_state(STATE_LIST.DATA)">
+
+    🗄
+    <small>管理</small>
+
+</button>
+
+
+
+<script>
+    function state_render(){
+        document.getElementById("pagetitle").textContent = app.state;
+
+        document.querySelectorAll(".nav-btn").forEach(btn=>{
+            btn.classList.toggle(
+                "active",
+                btn.dataset.state === app.state
+            );
+        });
+        // ページ表示
+        document.querySelectorAll(".page").forEach(p=>{
+
+            p.classList.add("d-none");
+
+        });
+        document.getElementById("page-"+app.state).classList.remove("d-none");
+    }
+</script>

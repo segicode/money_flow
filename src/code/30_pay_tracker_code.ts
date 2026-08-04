@@ -1,46 +1,49 @@
+function get_pay_data(){
+    const expense_data = get_expensedata();
+    const category_data = get_category_data();
+
+    return {expense_data, category_data};
+}
+
+function get_expensedata(){
+    const data = new ss(SHEETS.CSV).get_data().map(row => row.slice(0, 4));
+    data.forEach(row =>{
+        if (!row[0]) return;
+        row[0] = Utilities.formatDate(new Date(row[0]), "Asia/Tokyo", "yyyy/MM/dd");
+        row[1] = row[1] == null ? "" : String(row[1]);
+        row[2] = row[2] == null ? "" : String(row[2]);
+        row[3] = row[3] == null ? "" : String(row[3]);
+    });
+    return data;
+}
+
+function get_category_data(){
+    const data = new ss(SHEETS.CATEGORY).get_data();
+    const category_data:any = {};
+    data.forEach(row =>{
+        category_data[String(row[0])] = {logo:String(row[1]), color:String(row[2]), data:[]};
+        row.slice(3).forEach(value =>{
+            if(value !== "") category_data[String(row[0])].data.push(String(value));
+        })
+    })
+    return category_data;
+}
+
+function add_genre(genre:string, value:string){
+    new ss(SHEETS.CATEGORY).add_genre(genre, value);
+}
+
+
 function import_csv(){
-    const import_folder_name = "取り込み用_csv";
-    const archive_folder_name = "アーカイブ_csv";
-    const error_folder_name = "エラー用";
-    const sheet_name = "csvデータ";
-    const fixed_name = "固定出費";
-
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(sheet_name);
-
-    if(!sheet){
-        throw new Error("「"+sheet_name+"」のシートが見つかりません");
-    };
+    const csv_sheet = new ss(SHEETS.CSV);
+    const keyids = csv_sheet.get_data().map(row => row[3]);
     
-    const fixed_sheet = ss.getSheetByName(fixed_name);
-    if(!fixed_sheet){
-        throw new Error("「"+fixed_name+"」のシートが見つかりません");
-    };
+    const fixed_data = new ss(SHEETS.FIXED).get_data();
 
-    const lastrow = sheet.getLastRow();
-    const keyIds = lastrow < 1
-        ? []
-        : sheet.getRange(1, 4, lastrow).getValues().flat();
+    const import_folder  = new drive(FOLDER.IMPORT);
+    const archive_folder = new drive(FOLDER.ARCHIVE);
+    const error_folder   = new drive(FOLDER.ERROR);
 
-    const fixed_data = fixed_sheet.getDataRange().getValues();
-
-    if (!DriveApp.getFoldersByName(import_folder_name).hasNext()){
-        throw new Error("「"+import_folder_name+"」フォルダがみつかりません")
-    }
-    const csv_folder = DriveApp.getFoldersByName(import_folder_name).next();
-
-    if(!DriveApp.getFoldersByName(archive_folder_name).hasNext()){
-        throw new Error("「"+archive_folder_name+"」フォルダがみつかりません")
-    }
-    const archive_folder = DriveApp.getFoldersByName(archive_folder_name).next();
-
-    if(!DriveApp.getFoldersByName(error_folder_name).hasNext()){
-        throw new Error("「"+error_folder_name+"」フォルダがみつかりません")
-    }
-    const error_folder = DriveApp.getFoldersByName(error_folder_name).next();
-
-
-    const files = csv_folder.getFiles();
 
     let start_date = null;
     let end_date = null;
@@ -48,29 +51,26 @@ function import_csv(){
     let insert_count = 0;
     let error_text = "";
     
+    const files = import_folder.get_files();    
 
     while (files.hasNext()){
         const file = files.next();
         const file_name = file.getName().toLowerCase();
         if (!file_name.startsWith("transactions") || !file_name.endsWith(".csv")){
             error_text += file_name +"/n";
-            file.moveTo(error_folder);
+            error_folder.move(file);
             continue;
-        }
-        //ここら辺にファイル名でのフィルターを付ける
+        };
+        
         const csv_data = Utilities.parseCsv(
             file.getBlob().getDataAsString("UTF-8")
         );
 
-        const dates = csv_data
-            .slice(1) // ヘッダー除外
-            .map(row => new Date(row[0]).getTime());
+        const dates = csv_data.slice(1).map(row => new Date(row[0]).getTime());
 
             start_date = start_date === null || start_date > Math.min(...dates) ? Math.min(...dates) : start_date;
             end_date   = end_date   === null || end_date   < Math.max(...dates) ? Math.max(...dates) : end_date;
 
-        for (let i = 1; i < csv_data.length; i++){
-            const row = csv_data[i];
             /*
             0,利用日 〇
             1,出勤金額 〇
@@ -87,27 +87,30 @@ function import_csv(){
             12,取引番号 〇
             */
 
+        csv_data.forEach(row =>{
+
             const date = row[0];
             const expence = Number(row[1].replace(/,/g,""));
             const payment_type = row[7]
             const store = row[8].split("-")[0];
             const keyId = row[12];
 
-            if (payment_type  !== "支払い") continue;
-            if (keyIds.includes(keyId)) continue;
 
-            sheet.appendRow([
+            if (payment_type  !== "支払い") return;
+            if (keyids.includes(keyId)) return;
+            
+            csv_sheet.appendrow([
                 date,
                 store,
                 expence,
                 keyId
             ]);
-
-            keyIds.push(keyId);
+            
+            keyids.push(keyId);
             insert_count++;
-        }
+        })
 
-        file.moveTo(archive_folder);
+        archive_folder.move(file);
     }
 
     if(start_date && end_date){
@@ -123,16 +126,16 @@ function import_csv(){
             fixed_data.forEach((row,index)  => {
                 
                 const keyid = Number(String(current_date.getFullYear()) + String(current_date.getMonth()).padStart(2,"0") + String(index).padStart(4, "0"));
-                if (keyIds.includes(keyid)) return;
+                if (keyids.includes(keyid)) return;
 
-                sheet.appendRow([
+                csv_sheet.appendrow([
                     new Date(current_date.getFullYear(), current_date.getMonth()+1, 0),
                     row[0],
                     row[1],
                     keyid
                 ])
 
-                keyIds.push(keyid);
+                keyids.push(keyid);
                 insert_count++;
             })
             current_date.setMonth(current_date.getMonth()+1);

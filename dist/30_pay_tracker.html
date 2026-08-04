@@ -1,0 +1,249 @@
+    <div style="max-width:960px;" class="mx-auto">
+
+        <div class="dashboard_row row g-4">
+
+            <div  class="dashboard_col col-12 col-md-7">                
+                <div id="dashboard_pay_tracker">
+                    <div class="mb-3">
+
+                        <div class="text-secondary small">
+                            今月の支出合計
+                        </div>
+
+                        <div id="expense_total" class="fs-1 fw-bold">
+                            ¥124,580
+                        </div>
+
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+
+                            <div class="small text-secondary mb-3">
+                                カテゴリ別内訳
+                            </div>
+
+                            <div id="expense_chart"></div>
+
+                            <template id="expense_chart_item_template">
+                                <div class="d-flex justify-content-between">
+                                    <span class="category"></span>
+                                    <span class="expense"></span>
+                                </div>
+                                <div class="expense_bar">
+                                    <div class="expense_bar_fill"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div id="category_btn_list" class="d-flex flex-wrap gap-2 mb-2"></div>
+                    
+
+                </div>
+            </div>
+
+            <div class="col-12 col-md-5 align-items-center">
+
+                <div class="d-flex align-items-center">
+                    <hr class="flex-grow-1 border-top border-secondary"></hr>
+
+                    <span class="mx-3 py-1 rounded-pill text-secondary small fw-bold">
+                        取引履歴
+                    </span>
+
+                    <hr class="flex-grow-1 border-top border-secondary"></hr>
+                </div>
+
+                <div id="expense_list"></div>
+
+                <template id="expense_date_group_template">
+                    <div class="date text-secondary small mt-4 mb-2"></div>
+                    <div class="list"></div>
+                </template>
+
+                <template id="expense_item_template">
+                    <div class="card mb-2">
+                        <div class="card-body d-flex align-items-center">
+
+                            <div class="logo me-3 fs-4">
+                            </div>
+
+                            <div class="flex-grow-1">
+                                <div class="store fw-semibold">
+                                </div>
+
+                                <div class="category text-secondary small">
+                                </div>
+                            </div>
+
+                            <div class="expense fw-bold">
+                            </div>
+
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function pay_tracker_render(){
+            expense_total_render();
+            category_btn_render();
+            category_render();
+            chart_render();
+            expense_render();
+        }
+
+        class pay_data {
+            constructor(data) {
+                this.expense_data  = data.expense_data;
+                this.category_data = data.category_data;
+                this.category      = "すべて";
+            }
+            
+
+            get_month_data(){
+                return this.expense_data.filter(row =>{
+                    const date = new Date(row[0]);
+                    return date.getFullYear() === app.year &&
+                            date.getMonth()+1 === app.month
+                });
+            }
+
+            get_category_map(store){
+                return Object.keys(this.category_data).find(key =>
+                    this.category_data[key].data.includes(store)
+                )  || "???";
+            }
+            get_category_data(category){
+                if(category === "すべて") return this.get_month_data();
+                return this.get_month_data().filter(row =>{
+                    return this.get_category_map(row[1]) === category;
+                })
+            }
+
+            get_total_expense(){
+                return this.get_month_data().reduce((sum, row) =>{
+                    return Number(sum)+ Number(row[2]);
+                }, 0);
+            }
+
+            chenge_category(category){
+                this.category = category;
+                category_render();
+                expense_render();
+            }
+        }
+
+        function expense_total_render(){
+            document.getElementById("expense_total").textContent = "￥"+app.pay_data.get_total_expense().toLocaleString();
+        }
+
+        function category_btn_render(){
+            const category_btn_list = document.getElementById("category_btn_list");
+            category_btn_list.innerHTML = "";
+
+            category_btn_list.appendChild(create_category_btn("すべて"));
+
+            Object.keys(app.pay_data.category_data).forEach(category => {
+                category_btn_list.appendChild(create_category_btn(category));
+            });
+
+            category_btn_list.appendChild(create_category_btn("???"));
+
+                function create_category_btn(category) {
+
+                    const button = document.createElement("button");
+
+                    button.className = "category_btn";
+                    button.textContent = category;
+                    button.dataset.category = category;
+
+                    button.onclick = () => {
+                        app.pay_data.chenge_category(category);
+                    };
+
+                    return button;
+                }
+
+        }
+
+        function category_render(){
+            document.querySelectorAll(".category_btn").forEach(btn=>{
+                btn.classList.toggle(
+                    "active",
+                    btn.dataset.category === app.pay_data.category
+                );
+            });
+        }
+
+        function chart_render(){
+            const expense_chart = document.getElementById("expense_chart");
+            expense_chart.innerHTML = "";
+
+            const data = {};
+            Object.keys(app.pay_data.category_data).forEach(key =>{
+                data[key] = app.pay_data.get_category_data(key).reduce((sum, row) =>{
+                    return Number(sum)+ Number(row[2]);
+                }, 0);
+            });
+            data["???"] = app.pay_data.get_category_data("???").reduce((sum, row) =>{
+                    return Number(sum)+ Number(row[2]);
+                }, 0);
+
+            const template = document.getElementById("expense_chart_item_template");
+            Object.entries(data).forEach(([key, value])=>{
+                const clone = template.content.cloneNode(true);
+                clone.querySelector(".category").textContent = key;
+                clone.querySelector(".expense").textContent = "￥"+value.toLocaleString();
+                clone.querySelector(".expense_bar_fill").style.width = Math.min(value / 50000 * 100, 100)+"%";
+                clone.querySelector(".expense_bar_fill").style.backgroundColor = app.pay_data.category_data[key]?.color ?? "#EF9A9A";
+                expense_chart.appendChild(clone);
+            })
+        }
+
+        function expense_render(){
+            const expense_data = app.pay_data.get_category_data(app.pay_data.category);
+            console.log(expense_data);
+            const date_group = new Map();
+
+            expense_data.forEach(row =>{
+                if(!date_group.has(row[0])){
+                    date_group.set(row[0],[]);
+                }
+
+                date_group.get(row[0]).push(row);
+            });
+
+            const expense_list = document.getElementById("expense_list");
+            expense_list.innerHTML = "";
+
+            const date_group_template = document.getElementById("expense_date_group_template");
+            const item_template = document.getElementById("expense_item_template");
+
+            date_group.forEach((rows, date) =>{
+                const date_group_clone = date_group_template.content.cloneNode(true);
+                date_group_clone.querySelector(".date").textContent = 
+                    Number(date.split("/")[1])+"月"+Number(date.split("/")[2])+"日";
+                
+                const date_group_list = date_group_clone.querySelector(".list");
+
+                rows.forEach(row =>{
+                    const category = app.pay_data.get_category_map(row[1]);
+                    const item_clone = item_template.content.cloneNode(true);
+                        item_clone.querySelector(".logo").textContent = app.pay_data.category_data[category]?.logo ?? "❓";
+                        item_clone.querySelector(".logo").style.outlineColor = app.pay_data.category_data[category]?.color ?? "#EF9A9A";
+                        item_clone.querySelector(".store").textContent = row[1];
+                        item_clone.querySelector(".category").textContent = category;
+                        item_clone.querySelector(".expense").textContent = "-￥"+Number(row[2]).toLocaleString();
+                    date_group_list.appendChild(item_clone);
+                })
+                
+                expense_list.appendChild(date_group_clone);
+            });
+        }
+
+    </script>

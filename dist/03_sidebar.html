@@ -1,0 +1,42 @@
+<div class="d-flex flex-column p-3 gap-2 w-100">
+    <button 
+        class="btn nav-btn"
+        data-state="money_flow"
+        onclick="app.change_state(STATE_LIST.FLOW)">
+
+        📊家計簿
+
+    </button>
+
+    <button 
+        class="btn nav-btn"
+        data-state="work_manager"
+        onclick="app.change_state(STATE_LIST.WORK)">
+
+        📈収入
+
+    </button>
+
+    <button 
+        class="btn nav-btn"
+        data-state="pay_tracker"
+        onclick="app.change_state(STATE_LIST.PAY)">
+
+        📉支出
+
+    </button>
+
+    <button 
+        class="btn nav-btn"
+        data-state="data_management"
+        onclick="app.change_state(STATE_LIST.DATA)">
+
+        🗄管理
+    </button>
+
+    <div class="mt-auto">
+        <button class="btn btn-primary w-100">
+            ＋追加する
+        </button>
+    </div>
+</div>

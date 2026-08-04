@@ -1,0 +1,124 @@
+    <div style="max-width:960px;" class="mx-auto">
+
+        <div class="dashboard_row row g-4">
+
+            <div  class="dashboard_col col-12 col-md-7">                
+                <div id="dashboard_money_flow">
+                    <div class="mb-3">
+
+                        <div class="text-secondary small">
+                            今月の収支
+                        </div>
+
+                        <div id="expence_total" class="fs-1 fw-bold">
+                            ¥124,580
+                        </div>
+
+                    </div>
+                    
+                    <div class="summary-cards">
+
+                        <div class="kcard summary-card">
+                            <div class="s-label">↑ 収入</div>
+                            <div class="s-val mono" id="home-income"></div>
+                        </div>
+
+                        <div class="kcard summary-card">
+                            <div class="s-label">↓ 支出</div>
+                            <div class="s-val mono" id="home-expense"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+
+                            <div class="small text-secondary mb-3">
+                                カテゴリ別内訳
+                            </div>
+
+                            <canvas id="expense_chart"></canvas>
+
+                        </div>
+                    </div>
+
+                    <div class="kcard p-4 mb-4">
+                        <div class="label-xs mb-3">予算達成率</div>
+                        <div id="budget-bars"></div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="col-12 col-md-5 align-items-center">
+
+                <div class="d-flex align-items-center">
+                    <hr class="flex-grow-1 border-top border-secondary"></hr>
+
+                    <span class="mx-3 py-1 rounded-pill text-secondary small fw-bold">
+                        取引履歴
+                    </span>
+
+                    <hr class="flex-grow-1 border-top border-secondary"></hr>
+                </div>
+
+                <div id="expence_list"></div>
+
+                <template id="expence_date">
+                    <div class="date text-secondary small mt-4 mb-2">7月29日</div>
+                    <div class="list"></div>
+                </template>
+
+                <template id="expence_data">
+                    <div class="card mb-2">
+                        <div class="card-body d-flex align-items-center">
+
+                            <div class="contents_logo me-3 fs-4">
+                                🍽
+                            </div>
+
+                            <div class="flex-grow-1">
+                                <div class="store fw-semibold">
+                                スーパー
+                                </div>
+
+                                <div class="contents text-secondary small">
+                                食費
+                                </div>
+                            </div>
+
+                            <div class="expence fw-bold">
+                                -¥3,420
+                            </div>
+
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function contents_render(){}
+        function pay_tracker_render(){
+            
+        dashboard_position();
+        }
+
+        function template(){
+            const template = document.getElementById("expence_date");
+            const expencelist = document.getElementById("expence_list");
+            const data_tem = document.getElementById("expence_data");
+            const list = document.querySelector(".list");
+
+            for(i = 0; i <20;i++){
+                const clone = template.content.cloneNode(true);
+                const a = clone.querySelector(".list");
+                const clo =  data_tem.content.cloneNode(true);
+                a.appendChild(data_tem.content.cloneNode(true));
+                a.appendChild(data_tem.content.cloneNode(true));
+                expencelist.appendChild(clone);
+            };
+        }
+        template();

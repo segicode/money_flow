@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+    <head>
+        <?!= include("01_style"); ?>
+    </head>
+
+    <body class="d-flex flex-column vh-100">
+
+        <header class="header sticky-top">
+            <?!= include("02_header"); ?>
+        </header>
+
+        <div class="d-flex flex-grow-1" style="overflow: hidden;">
+
+            <aside class="sidebar pc-flex justify-content-center" style="width: clamp(140px, 18vw, 170px);">
+                <?!= include("03_sidebar"); ?>
+            </aside>
+
+            <main class="main-content flex-grow-1 overflow-auto px-4 py-3" style="background-color:#eef6ff;">
+
+                <div id="page-money_flow" class="page d-none">
+                    家計簿ページ
+                </div>
+
+                <div id="page-work_manager" class="page d-none">
+                    <?!= include("20_work_manager"); ?>
+                </div>
+
+                <div id="page-pay_tracker" class="page d-none">
+                    <?!= include("30_pay_tracker"); ?>
+                </div>
+
+                <div id="page-data_management" class="page d-none">
+                    管理ページ
+                </div>
+
+            </main>
+        </div>
+
+        <footer class="footer mobile-flex sticky-bottom">
+            <?!= include("04_footer"); ?>
+        </footer>
+
+    <?!= include("05_script"); ?>
+
+
+    </body>

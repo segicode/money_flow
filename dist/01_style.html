@@ -1,0 +1,111 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .nav-btn {
+        border:0;
+        color:#64748b;
+        font-size:16px;
+    }
+
+    .nav-btn.active {
+        background: rgba(77, 163, 255, 0.15);
+        border: 1px solid #4da3ff;
+        color: #1976d2;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(77, 163, 255, 0.25);
+    }
+
+    .nav-btn small {
+        display:block;
+    }
+    
+    .pb-6 {
+        padding-bottom: 5rem;
+    }
+
+    .mobile-flex{
+        display: flex;
+    }
+    .pc-flex{
+        display: none;
+    }
+    @media (min-width: 768px){
+        .mobile-flex{
+            display: none;
+        }
+        .pc-flex{
+            display: flex;
+        }
+    }
+
+    .header{
+        background-color: white;
+        border-bottom: 1px solid;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    }
+
+    .sidebar{
+        background-color: white;
+        border-right: 1px solid;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    }
+
+    .footer{
+        background-color: white;
+        border-top: 1px solid;
+        box-shadow: 0 -0.075rem .25rem rgba(0, 0, 0, .075);
+    }
+
+/*pay_tracker*/
+
+    .category_btn {
+        /* btn-sm */
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+
+        /* btn-outline-secondary */
+        color: #6c757d;
+        background-color: transparent;
+        border: 1px solid #6c757d;
+
+        /* rounded-pill */
+        border-radius: 50rem;
+
+        /* ボタンとしての調整 */
+        cursor: pointer;
+        transition: 0.15s;
+
+        white-space: nowrap;
+    }
+
+    /* hover */
+    .category_btn:hover {
+        color: #fff;
+        background-color: #6c757d;
+    }
+
+    /* active */
+    .category_btn.active {
+        color: #fff;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .expense_bar {
+        height: 8px;
+        background: #eee;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .expense_bar_fill {
+        height: 100%;
+        border-radius: 999px;
+        background: #3b8c56;
+    }
+
+    .logo {
+        border-radius: 50%;
+        outline: 2px solid;
+        outline-offset: 2px;
+    }
+</style>

@@ -1,0 +1,153 @@
+<div class="modal fade" id="appDialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="dialogTitle"></h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body text-center" id="dialogBody"></div>
+
+      <div class="modal-footer" id="dialogFooter"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    class Dialog{
+
+        static modal = null;
+
+        static reset(){
+
+            document.querySelectorAll(".modal.show").forEach(el=>{
+            const m = bootstrap.Modal.getInstance(el);
+            if(m) m.hide();
+            });
+
+            document.querySelectorAll(".modal-backdrop").forEach(el=>el.remove());
+
+            document.body.classList.remove("modal-open");
+
+        };
+
+        /* 基本modal */
+        static show(title,body,footer=""){
+
+            this.reset();
+
+            document.getElementById("dialogTitle").textContent = title;
+            document.getElementById("dialogBody").innerHTML = body;
+            document.getElementById("dialogFooter").innerHTML = footer;
+
+            this.modal = new bootstrap.Modal("#appDialog");
+            this.modal.show();
+
+        };
+
+        /* alert */
+        static alert(message,title="通知"){
+
+            this.show(
+            title,
+            message,
+            `<button class="btn btn-primary" data-bs-dismiss="modal">OK</button>`
+            );
+
+        };
+
+        /* confirm */
+        static confirm(message,callback,title="確認"){
+
+            this.show(
+            title,
+            message,
+            `
+            <button class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button class="btn btn-danger" id="dialogConfirm">OK</button>
+            `
+            );
+
+            document.getElementById("dialogConfirm").onclick=()=>{
+                this.close();
+                setTimeout(() => {
+                    callback();                    
+                }, 100);
+            };
+
+        };
+
+        /* modal内容更新 */
+        static update(text){
+            if(!document.querySelector(".modal.show")){
+                this.alert(text);
+                return;
+            };
+
+            document.getElementById("dialogBody").innerHTML = text;
+            document.getElementById("dialogFooter").innerHTML = 
+                '<button class="btn btn-primary" data-bs-dismiss="modal">OK</button>';
+
+        };
+
+        /* loading */
+        static loading(text="処理中..."){
+
+            this.show(
+            "Loading",
+            `
+            <div class="text-center">
+
+                <div class="spinner-border text-primary"></div>
+
+                <div class="mt-2">${text}</div>
+
+            </div>
+            `
+            );
+
+        };
+
+        /* modal閉じる */
+        static close(){
+
+            if(this.modal){
+            this.modal.hide();
+            }
+
+        };
+
+        /* toast通知 */
+        static toast(message,type="primary",time=3000){
+
+            const id = "toast"+Date.now();
+
+            const html = `
+            <div id="${id}" class="toast align-items-center text-bg-${type} border-0">
+                <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+            `;
+
+            const area = document.getElementById("toastArea");
+
+            area.insertAdjacentHTML("beforeend",html);
+
+            const toast = new bootstrap.Toast(
+            document.getElementById(id),
+            {delay:time}
+            );
+
+            toast.show();
+
+        };
+
+    };
+</script>
