@@ -1,14 +1,17 @@
 const SHEETS ={
     CSV      : "csvデータ",
     CATEGORY : "カテゴリー",
-    FIXED    : "固定費"
+    FIXED    : "固定費",
+    WORKLIST : "仕事リスト",
+    SHIFTLIST: "シフトリスト"
 } as const;
 
+const spread_sheet  = SpreadsheetApp.getActiveSpreadsheet();
 class ss {
     private sheet: GoogleAppsScript.Spreadsheet.Sheet;
 
     constructor(sheetname: typeof SHEETS[keyof typeof SHEETS]) {
-        const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetname);
+        const sheet = spread_sheet.getSheetByName(sheetname);
         if(!sheet){throw new Error(sheetname+"シートが見つかりません")};
 
         this.sheet = sheet;

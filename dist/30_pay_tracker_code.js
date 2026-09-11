@@ -1,32 +1,31 @@
 "use strict";
 function get_pay_data() {
-    const expense_data = get_expensedata();
-    const category_data = get_category_data();
-    return { expense_data, category_data };
-}
-function get_expensedata() {
+    const expense_data = [];
+    const category_obj = get_category_obj();
     const data = new ss(SHEETS.CSV).get_data().map(row => row.slice(0, 4));
     data.forEach(row => {
         if (!row[0])
             return;
-        row[0] = Utilities.formatDate(new Date(row[0]), "Asia/Tokyo", "yyyy/MM/dd");
-        row[1] = row[1] == null ? "" : String(row[1]);
-        row[2] = row[2] == null ? "" : String(row[2]);
-        row[3] = row[3] == null ? "" : String(row[3]);
+        const date = Utilities.formatDate(new Date(row[0]), "Asia/Tokyo", "yyyy/MM/dd");
+        const store = row[1] == null ? "" : row[1];
+        const category = Object.keys(category_obj).find(key => category_obj[key].data.includes(store)) || "???";
+        const color = category !== "???" ? category_obj[category]?.color || "#EF9A9A" : "#EF9A9A";
+        const expense = row[2] == null ? "" : String(row[2]);
+        expense_data.push([false, date, store, category, String(color), expense, "0"]);
     });
-    return data;
+    return { expense_data, category_obj };
 }
-function get_category_data() {
+function get_category_obj() {
     const data = new ss(SHEETS.CATEGORY).get_data();
-    const category_data = {};
+    const category_obj = {};
     data.forEach(row => {
-        category_data[String(row[0])] = { logo: String(row[1]), color: String(row[2]), data: [] };
+        category_obj[String(row[0])] = { logo: String(row[1]), color: String(row[2]), data: [] };
         row.slice(3).forEach(value => {
             if (value !== "")
-                category_data[String(row[0])].data.push(String(value));
+                category_obj[String(row[0])].data.push(String(value));
         });
     });
-    return category_data;
+    return category_obj;
 }
 function add_genre(genre, value) {
     new ss(SHEETS.CATEGORY).add_genre(genre, value);

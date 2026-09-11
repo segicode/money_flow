@@ -1,56 +1,131 @@
-    <div style="max-width:960px;" class="mx-auto">
+    <div style="max-width:960px;" class="money_flow mx-auto">
 
-        <div class="dashboard_row row g-4">
+        <div class="d-flex flex-column flex-md-row gap-4">
 
-            <div  class="dashboard_col col-12 col-md-7">                
-                <div id="dashboard_money_flow">
-                    <div class="mb-3">
+            <div data-js="dashboard" class="dashboard d-flex align-items-md-start">
+                <div data-js="dashboard_card" class="sticky-md-top d-flex flex-column gap-3 w-100">
 
+                    <div>
                         <div class="text-secondary small">
                             今月の収支
                         </div>
 
-                        <div id="expence_total" class="fs-1 fw-bold">
-                            ¥124,580
+                        <div data-js="profit" class="fs-1 fw-bold">
+                            ￥0
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+
+                        <div class="card shadow-sm w-50 d-flex justify-content-center">
+                            <div class="card-body">
+
+                                <div>収入</div>
+                                <div data-js="income_total" class="ms-2 text-success">￥0</div>
+
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm w-50">
+                            <div class="card-body">
+
+                                <div>支出</div>
+                                <div data-js="expense_total" class="ms-2 text-danger">￥0</div>
+
+                            </div>
                         </div>
 
                     </div>
                     
-                    <div class="summary-cards">
-
-                        <div class="kcard summary-card">
-                            <div class="s-label">↑ 収入</div>
-                            <div class="s-val mono" id="home-income"></div>
-                        </div>
-
-                        <div class="kcard summary-card">
-                            <div class="s-label">↓ 支出</div>
-                            <div class="s-val mono" id="home-expense"></div>
-                        </div>
-
-                    </div>
-
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm">
                         <div class="card-body">
 
                             <div class="small text-secondary mb-3">
                                 カテゴリ別内訳
                             </div>
 
-                            <canvas id="expense_chart"></canvas>
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="flex-shrink-0" style="width: 30%;">
+                                    <div class="ratio ratio-1x1">
+                                    <canvas id="doughnut_chart"></canvas>
+                                    </div>
+                                </div>
+                                <div data-js="chart_list" class="flex-grow-1 d-flex flex-column gap-2"></div>
+                            </div>
+                            <script>
+                                const chart_canvas = document.getElementById("doughnut_chart");
+                                const doughnut_chart = new Chart(chart_canvas, {
+                                    type: "doughnut",
+                                    data:{
+                                        labels:[0],
+                                        datasets:[{
+                                            data:[0],
+                                            hoverOffset: 2,
+                                        }]
+                                    },
+                                    options: {
+                                        cutout: "65%",
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins:{
+                                            legend:{
+                                                display: false
+                                            },
+                                            tooltip:{
+                                                callbacks:{
+                                                    label: ctx => "￥"+ctx.raw.toLocaleString(),
+                                                }
+                                            }
+                                        }
+                                    }
+                                })
+                            </script>
+
+                            <template data-template="chart_legend">
+                                <div class="d-grid align-items-center gap-1" 
+                                    style="grid-template-columns: minmax(0, 1fr) auto 40px;">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="chart_rounded_circle flex-shrink-0"></span>
+                                        <span class="category small text-secondary"></span>
+                                    </div>
+                                    <span class="expense text-end small"></span>
+                                    <span class="parcentage text-end small text-secondary"></span>
+                                </div>
+                            </template>
 
                         </div>
                     </div>
 
-                    <div class="kcard p-4 mb-4">
-                        <div class="label-xs mb-3">予算達成率</div>
-                        <div id="budget-bars"></div>
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+
+                            <div class="small text-secondary mb-3">
+                                カテゴリ別内訳
+                            </div>
+
+                            <div data-js="bar_chart"></div>
+
+                            <template data-template="bar_chart_item">
+
+                                <div class="d-flex justify-content-between">
+                                    <span class="category"></span>
+                                    <span class="expense"></span>
+                                </div>
+
+                                <div class="expense_bar">
+                                    <div class="expense_bar_fill"></div>
+                                </div>
+
+                            </template>
+
+                        </div>
                     </div>
-                    
+
                 </div>
             </div>
 
-            <div class="col-12 col-md-5 align-items-center">
+
+            <div data-js="records" class="records align-items-center">
 
                 <div class="d-flex align-items-center">
                     <hr class="flex-grow-1 border-top border-secondary"></hr>
@@ -62,33 +137,27 @@
                     <hr class="flex-grow-1 border-top border-secondary"></hr>
                 </div>
 
-                <div id="expence_list"></div>
+                <div data-js="records_list"></div>
 
-                <template id="expence_date">
-                    <div class="date text-secondary small mt-4 mb-2">7月29日</div>
+                <template data-template="records_date_group">
+                    <div class="date text-secondary small mt-4 mb-2"></div>
                     <div class="list"></div>
                 </template>
 
-                <template id="expence_data">
+                <template data-template="records_item">
                     <div class="card mb-2">
                         <div class="card-body d-flex align-items-center">
 
-                            <div class="contents_logo me-3 fs-4">
-                                🍽
+                            <div class="rounded-circle"></div>
+
+                            <div class="flex-grow-1 ps-1">
+                                <div class="title fw-semibold">???</div>
+                                <div class="contents text-secondary small"></div>
                             </div>
 
-                            <div class="flex-grow-1">
-                                <div class="store fw-semibold">
-                                スーパー
-                                </div>
-
-                                <div class="contents text-secondary small">
-                                食費
-                                </div>
-                            </div>
-
-                            <div class="expence fw-bold">
-                                -¥3,420
+                            <div>
+                                <div class="money fw-bold"></div>
+                                <div class="bonus text-secondary small"></div>
                             </div>
 
                         </div>
@@ -100,25 +169,129 @@
     </div>
 
     <script>
-        function contents_render(){}
-        function pay_tracker_render(){
+        
+        function money_flow_render(){
+            doughnut_chart_render();
+            money_dashboard_render();
+            money_records_list_render();
+            dashboard_position();
+        }
+
+
+        function money_dashboard_render(){
+            const income = app.work_data.get_month_total();
+            const expense = app.pay_data.get_month_total();
+            if(income >= expense){
+                const profit = "￥" + (income - expense).toLocaleString();
+                data_js("money_flow", "profit").classList.add("text-success");
+                data_js("money_flow", "profit").textContent = profit;
+            } else {
+                const profit = "-￥" + (expense - income).toLocaleString();
+                data_js("money_flow", "profit").classList.add("text-danger");
+                data_js("money_flow", "profit").textContent = profit;                
+            }
+
+            data_js("money_flow", "income_total").textContent = "￥" + income.toLocaleString();
+            data_js("money_flow", "expense_total").textContent = "-￥" + expense.toLocaleString();
+
+        }
+
+        function doughnut_chart_render(){
+            const category_chart = [];
+
+            Object.entries(app.pay_data.category_obj).forEach(([category, category_data]) =>{
+                const color = category_data.color;
+                const expense = app.pay_data.get_category_total(category);
+
+                category_chart.push([category, color, expense]);
+            })
+            category_chart.push(["???", "#EF9A9A", app.pay_data.get_category_total("???")]);
+
+            doughnut_chart.data.labels = category_chart.map(row => row[0]);
+            doughnut_chart.data.datasets[0].data = category_chart.map(row => row[2]);
+            doughnut_chart.data.datasets[0].backgroundColor = category_chart.map(row => row[1]);
+
+            doughnut_chart.update();
             
-        dashboard_position();
-        }
+            const total = category_chart.reduce((sum, row) =>{
+                console.log(sum, row[2]);
+                if(isNaN(row[2])) return sum;
+                return sum + row[2];
+            }, 0);
 
-        function template(){
-            const template = document.getElementById("expence_date");
-            const expencelist = document.getElementById("expence_list");
-            const data_tem = document.getElementById("expence_data");
-            const list = document.querySelector(".list");
-
-            for(i = 0; i <20;i++){
+            const list = data_js("money_flow", "chart_list");
+            list.innerHTML = "";
+            const template = data_template("money_flow", "chart_legend");
+            category_chart.forEach(row =>{
+                const parcentage = Math.round(Number(row[2]) / Number(total) * 100);
                 const clone = template.content.cloneNode(true);
-                const a = clone.querySelector(".list");
-                const clo =  data_tem.content.cloneNode(true);
-                a.appendChild(data_tem.content.cloneNode(true));
-                a.appendChild(data_tem.content.cloneNode(true));
-                expencelist.appendChild(clone);
-            };
+                clone.querySelector(".chart_rounded_circle").style.backgroundColor = row[1];
+                clone.querySelector(".category").textContent = row[0];
+                clone.querySelector(".expense").textContent = "￥"+ row[2].toLocaleString();
+                if(isNaN(parcentage)){
+                    clone.querySelector(".parcentage").textContent = "-%";
+                } else {
+                    clone.querySelector(".parcentage").textContent = parcentage + "%";
+                }
+                list.appendChild(clone);
+            })
         }
-        template();
+
+        function money_records_list_render(){
+            const carender_data = app.work_data.get_month_data();
+            const expense_data = app.pay_data.get_month_data();
+
+            const date_group = new Map();
+
+            carender_data.forEach(row => {
+                if(!date_group.has(row[1])){
+                    date_group.set(row[1],[]);
+                }
+
+                date_group.get(row[1]).push(row);
+            });
+            expense_data.forEach(row => {
+                if(!date_group.has(row[1])){
+                    date_group.set(row[1],[]);
+                }
+
+                date_group.get(row[1]).push(row);
+            });
+
+            const records_list = data_js("money_flow", "records_list");
+            records_list.innerHTML = "";
+
+            const date_group_template = data_template("money_flow", "records_date_group");
+            const item_template = data_template("money_flow", "records_item");
+
+            date_group.forEach((rows,date) =>{
+                const date_group_clone = date_group_template.content.cloneNode(true);
+                date_group_clone.querySelector(".date").textContent =
+                    Number(date.split("/")[1])+"月"+Number(date.split("/")[2])+"日";
+
+                const date_group_list = date_group_clone.querySelector(".list");
+
+                rows.forEach(row =>{
+                    const item_clone = item_template.content.cloneNode(true);
+
+                    item_clone.querySelector(".rounded-circle").style.backgroundColor = row[4];
+                    item_clone.querySelector(".title").textContent = row[2];
+                    item_clone.querySelector(".contents").textContent = row[3];
+                    if(row[0]){
+                        item_clone.querySelector(".money").classList.add("text-success");
+                        item_clone.querySelector(".money").textContent =
+                        isNaN(row[5]) ? "???" : "￥"+Number(row[5]).toLocaleString();
+                    } else {
+                        item_clone.querySelector(".money").classList.add("text-danger");
+                        item_clone.querySelector(".money").textContent =
+                        isNaN(row[5]) ? "???" : "-￥"+Number(row[5]).toLocaleString();
+                    }
+                    
+                    if(row[6] !== "0" && row[6] !== "???")item_clone.querySelector(".bonus").textContent = row[6];
+                    date_group_list.appendChild(item_clone);
+                })
+                records_list.appendChild(date_group_clone);
+            });
+            
+        }
+    </script>

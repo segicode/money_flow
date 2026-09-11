@@ -10,7 +10,7 @@
             <?!= include("02_header"); ?>
         </header>
 
-        <div class="d-flex flex-grow-1" style="overflow: hidden;">
+        <div class="d-flex flex-grow-1 position-relative" style="overflow: hidden;">
 
             <aside class="sidebar pc-flex justify-content-center" style="width: clamp(140px, 18vw, 170px);">
                 <?!= include("03_sidebar"); ?>
@@ -18,26 +18,29 @@
 
             <main class="main-content flex-grow-1 overflow-auto px-4 py-3" style="background-color:#eef6ff;">
 
-                <div id="page-money_flow" class="page d-none">
-                    家計簿ページ
+                <div data-page="money_flow" class="page d-none">
+                   <?!= include("10_money_flow"); ?>
                 </div>
 
-                <div id="page-work_manager" class="page d-none">
-                    <?!= include("20_work_manager"); ?>
+                <div data-page="work_manager" class="page d-none">
+                   <?!= include("20_work_manager"); ?>
                 </div>
 
-                <div id="page-pay_tracker" class="page d-none">
-                    <?!= include("30_pay_tracker"); ?>
+                <div data-page="pay_tracker" class="page d-none">
+                   <?!= include("30_pay_tracker"); ?>
                 </div>
 
-                <div id="page-data_management" class="page d-none">
-                    管理ページ
+                <div data-page="data_management" class="page d-none">
+                   <?!= include("40_data_management"); ?>
                 </div>
 
             </main>
+                <div class="mobile-flex">
+                    <button class="btn btn-light position-absolute bottom-0 end-0">↑</button>
+                </div>
         </div>
 
-        <footer class="footer mobile-flex sticky-bottom">
+        <footer class="mobile-flex sticky-bottom">
             <?!= include("04_footer"); ?>
         </footer>
 

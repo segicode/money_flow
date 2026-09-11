@@ -1,0 +1,178 @@
+    <div style="max-width:960px;" class="mx-auto">
+
+        <div class="d-flex flex-column flex-md-row gap-4">
+
+            <div class="dashboard d-flex align-items-md-start">
+                <div class="dashboard_card w-100 sticky-md-top">
+                    <div class="mb-3">
+
+                        <div class="text-secondary small">
+                            今月の収入合計
+                        </div>
+
+                        <div id="income_total" class="fs-1 fw-bold">
+                            ¥124,580
+                        </div>
+
+                    </div>
+                    <div id="work_card_list" class="d-flex flex-column gap-3"></div>
+                </div>
+                   
+    <template id="work_card_template">
+        <div class="card">
+            <div class="card-body py-2 px-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="fw-bold">
+                        <span class="text-primary me-2">●</span>
+                        仕事B
+                    </div>
+
+                    <div class="fw-bold font-monospace text-primary">
+                        ¥113,000
+                    </div>
+                </div>
+            </div>
+
+            <div class="shift_list d-flex flex-wrap"></div>
+
+            <div class="px-3 py-2 bg-warning-subtle">
+                <div class="d-flex justify-content-between align-items-center small">
+                    <div>
+                        🎁
+                        <span class="text-warning-emphasis fw-semibold ms-1">
+                            ボーナス
+                        </span>
+                        <span class="text-secondary ms-2">
+                            （残業・賞与など）
+                        </span>
+                    </div>
+
+                    <div class="text-warning-emphasis font-monospace fw-semibold">
+                        +¥10,000
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="shift_item_template">
+        <div class="px-3 py-2 flex-fill border-end">
+            <div class="small text-success mb-1">午前</div>
+            <div class="font-monospace">¥40,000</div>
+        </div>
+    </template>
+
+            </div>
+
+
+            <div class="records_list align-items-center">
+
+                <div class="d-flex align-items-center">
+                    <hr class="flex-grow-1 border-top border-secondary"></hr>
+
+                    <span class="mx-3 py-1 rounded-pill text-secondary small fw-bold">
+                        取引履歴
+                    </span>
+
+                    <hr class="flex-grow-1 border-top border-secondary"></hr>
+                </div>
+
+                <div id="carender_list"></div>
+
+                <template id="carender_date_group_template">
+                    <div class="date text-secondary small mt-4 mb-2">7月29日</div>
+                    <div class="list"></div>
+                </template>
+
+                <template id="carender_item_template">
+                    <div class="card mb-2">
+                        <div class="card-body d-flex align-items-center">
+
+                            <div class="logo me-3 fs-4"></div>
+
+                            <div class="flex-grow-1">
+                                <div class="work fw-semibold">???</div>
+                            </div>
+
+                            <div>
+                                <div class="income fw-bold"></div>
+                                <div class="income_bonus text-secondary small"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+
+        class work_data {
+            constructor(data) {
+                this.carender_data = data.carender_data;
+                this.shift_data = data.shift_data
+                this.shift = "すべて";
+            }
+            
+            get_month_data(){
+                return this.carender_data.filter(row =>{
+                    const date = new Date(row[0]);
+                    return date.getFullYear() === app.year &&
+                            date.getMonth()+1 === app.month
+                });
+            }
+
+            get_shift_data(shift){
+                if(shift === "すべて")return this.get_month_data();
+                return this.get_month_data().filter(row =>
+                    row[1].startsWith(shift)
+                );
+            }
+
+            get_shift_total(shift){
+                this.get_shift_data(shift)
+            }
+
+            get_total_income(){
+                return this.get_month_data().reduce((sum, row) =>{
+                    const work = row[1].split(" ")[0];
+                    if(!this.shift_data[work])return;
+                    const income = this.shift_data[work] * row[2]
+                    return sum+ income;
+                }, 0);
+            }
+
+            get_income(work, hour){
+                const work_data = this.shift_data[work];
+                if(!work_data)throw new Error(work+"仕事データがありません。給料計算ができません。");
+                return work_data.hour_wage * hour;
+            }
+            get_basic_income(work, shift){
+                const work_data = this.shift_data[work];
+                if(!work_data)throw new Error(work+"仕事データがありません。基本給の計算ができません。");
+                const shift_data = work_data.shift_list[shift];
+                if(!shift_data) throw new Error(shift+"シフトデータがありません。基本給の計算ができません");
+
+                return work_data.hour_wage * shift_data.work_hour; 
+            }
+
+            get_records_item([date, title, hour]){
+                const [work, shift] = title.split(" ");   
+                if(!this.shift_data[work].shift_list[shift])throw new Error(title+"仕事データがありません。records_itemの配列を造れません。");             
+
+                const color = this.shift_data[work].color;
+                const income = this.get_income(work, hour);
+                const income_bonus = Number(income) - Number(this.get_basic_income(work, shift));
+                return [date, title, color, income, income_bonus];
+            }
+
+            get_dashbord(){
+
+            }
+        }
+
+    </script>

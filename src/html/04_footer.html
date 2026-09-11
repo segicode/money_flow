@@ -1,61 +1,42 @@
-<button 
-    class="btn flex-fill nav-btn active"
-    data-state="money_flow"
-    onclick="app.change_state(STATE_LIST.FLOW)">
 
-    📊
-    <small>家計簿</small>
+    <div  class="footer d-flex">
+        <button 
+            class="btn flex-fill nav-btn active"
+            data-state="money_flow"
+            onclick="app.change_state(STATE_LIST.FLOW)">
 
-</button>
+            📊
+            <small>家計簿</small>
 
-<button 
-    class="btn flex-fill nav-btn"
-    data-state="work_manager"
-    onclick="app.change_state(STATE_LIST.WORK)">
+        </button>
 
-    📈
-    <small>収入</small>
+        <button 
+            class="btn flex-fill nav-btn"
+            data-state="work_manager"
+            onclick="app.change_state(STATE_LIST.WORK)">
 
-</button>
+            📈
+            <small>収入</small>
 
-<button 
-    class="btn flex-fill nav-btn"
-    data-state="pay_tracker"
-    onclick="app.change_state(STATE_LIST.PAY)">
+        </button>
 
-    📉
-    <small>支出</small>
+        <button 
+            class="btn flex-fill nav-btn"
+            data-state="pay_tracker"
+            onclick="app.change_state(STATE_LIST.PAY)">
 
-</button>
+            📉
+            <small>支出</small>
 
-<button 
-    class="btn flex-fill nav-btn"
-    data-state="data_management"
-    onclick="app.change_state(STATE_LIST.DATA)">
+        </button>
 
-    🗄
-    <small>管理</small>
+        <button 
+            class="btn flex-fill nav-btn"
+            data-state="data_management"
+            onclick="app.change_state(STATE_LIST.DATA)">
 
-</button>
+            🗄
+            <small>管理</small>
 
-
-
-<script>
-    function state_render(){
-        document.getElementById("pagetitle").textContent = app.state;
-
-        document.querySelectorAll(".nav-btn").forEach(btn=>{
-            btn.classList.toggle(
-                "active",
-                btn.dataset.state === app.state
-            );
-        });
-        // ページ表示
-        document.querySelectorAll(".page").forEach(p=>{
-
-            p.classList.add("d-none");
-
-        });
-        document.getElementById("page-"+app.state).classList.remove("d-none");
-    }
-</script>
+        </button>
+    </div>

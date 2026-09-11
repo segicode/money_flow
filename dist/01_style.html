@@ -50,14 +50,48 @@
     }
 
     .footer{
+        width: 100%;
         background-color: white;
         border-top: 1px solid;
         box-shadow: 0 -0.075rem .25rem rgba(0, 0, 0, .075);
     }
 
+/*main*/
+    .dashboard{
+        width: 100%;
+    }
+    .records{
+        width: 100%;
+    }
+    @media (min-width: 768px){
+        .dashboard{
+            width: 60%;
+        }
+        .records{
+            width: 40%;
+        }
+    }
+    
+    .rounded-circle{
+        width: 20px;
+        height: 20px;
+    }
+    .chart_rounded_circle{
+        width: 1em;
+        height: 1em;
+        border-radius: 50%;
+    }
+
+    .shift_list .shift_item:not(:last-child){
+        border-right: 1px solid #dee2e6;
+    }
+
+    .shift_item{
+        flex: 1 1 0;
+    }
 /*pay_tracker*/
 
-    .category_btn {
+    .filter_btn {
         /* btn-sm */
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
@@ -78,13 +112,13 @@
     }
 
     /* hover */
-    .category_btn:hover {
+    .filter_btn:hover {
         color: #fff;
         background-color: #6c757d;
     }
 
     /* active */
-    .category_btn.active {
+    .filter_btn.active {
         color: #fff;
         background-color: #0d6efd;
         border-color: #0d6efd;
@@ -104,8 +138,10 @@
     }
 
     .logo {
+        background-color: #EF9A9A;
         border-radius: 50%;
         outline: 2px solid;
         outline-offset: 2px;
+        outline-color: #EF9A9A;
     }
 </style>

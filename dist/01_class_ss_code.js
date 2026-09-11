@@ -2,11 +2,14 @@
 const SHEETS = {
     CSV: "csvデータ",
     CATEGORY: "カテゴリー",
-    FIXED: "固定費"
+    FIXED: "固定費",
+    WORKLIST: "仕事リスト",
+    SHIFTLIST: "シフトリスト"
 };
+const spread_sheet = SpreadsheetApp.getActiveSpreadsheet();
 class ss {
     constructor(sheetname) {
-        const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetname);
+        const sheet = spread_sheet.getSheetByName(sheetname);
         if (!sheet) {
             throw new Error(sheetname + "シートが見つかりません");
         }

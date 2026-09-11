@@ -14,9 +14,8 @@
             this.year   = today.getFullYear();
             this.month  = today.getMonth()+1;
 
-            this.pay_data = null;
-
-            //this.pay_data = new pay_data(data.pay_data);
+            this.pay_data  = null;
+            this.work_data = null;
         }
 
 
@@ -54,44 +53,67 @@
     }
 
     const app = new App();
+    const data_page = (page) => document.querySelector("[data-page="+page+"]");
+    const data_js = (page, name) => document.querySelector("[data-page="+page+"]").querySelector("[data-js="+name+"]");
+    const data_template = (page, name) => document.querySelector("[data-page="+page+"]").querySelector("[data-template="+name+"]");
+
     google.script.run
         .withSuccessHandler(data =>{
             app.pay_data = new pay_data(data.pay_data);
+            app.work_data = new work_data(data.work_data);
             date_render();
             state_render();
+            main_render(app.state);
             console.log(app);
         })
         .get_all_data();
 
+
+    function date_render(){
+        document.getElementById("month_label").textContent =`${app.year}年${app.month}月`;
+    }
+
+    function state_render(){
+        document.querySelectorAll(".nav-btn").forEach(btn=>{
+            btn.classList.toggle(
+                "active",
+                btn.dataset.state === app.state
+            );
+        });
+        // ページ表示
+        document.querySelectorAll(".page").forEach(page=>{
+
+            page.classList.add("d-none");
+
+        });
+        document.querySelector("[data-page="+app.state+"]").classList.remove("d-none");
+    }
 
     function main_render(state){
         switch(state){
             case "money_flow"     : money_flow_render(); break;
             case "work_manager"   : work_manager_render(); break;
             case "pay_tracker"    : pay_tracker_render(); break;
-            case "data_management": data_management_render(); break;
+        //    case "data_management": data_management_render(); break;
         };
     }
 
     function dashboard_position() {
-        const dashboard = document.getElementById(`dashboard_${app.state}`);
-        if (!dashboard) return;
+        const dashboard = data_js(app.state, "dashboard");
+        const dashboard_card = data_js(app.state, "dashboard_card");
+        const records_list = data_js(app.state, "records");
+        if(!dashboard || !records_list ||!dashboard_card)return;
 
-        const row = dashboard.closest(".dashboard_row");
-        const col = dashboard.closest(".dashboard_col");
+        const isTall = dashboard_card.offsetHeight  > window.innerHeight -65;
 
-        const isTall = dashboard.offsetHeight > window.innerHeight;
-
-        row.classList.toggle("align-items-md-end", isTall);
-        row.classList.toggle("align-items-md-start", !isTall);
-        col.classList.toggle("sticky-md-bottom", isTall);
-        col.classList.toggle("sticky-md-top", !isTall);
+        dashboard.classList.toggle("align-items-md-end", isTall);
+        dashboard.classList.toggle("align-items-md-start", !isTall);
+        dashboard_card.classList.toggle("sticky-md-bottom", isTall);
+        dashboard_card.classList.toggle("sticky-md-top", !isTall);
     }
     window.addEventListener("resize", dashboard_position);
 
 
-    function money_flow_render(){dashboard_position()}
-    function work_manager_render(){dashboard_position()}
     function data_management_render(){}
 
 /*let currentPage = "home";

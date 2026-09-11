@@ -8,9 +8,10 @@ function doGet(){
 
 function get_all_data(){
     const pay_data = get_pay_data();
+    const work_data = get_work_data();
     return{
         pay_data: pay_data,
-        work_data: null
+        work_data: work_data
     }
 }
 
